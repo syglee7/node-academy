@@ -4,14 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "supervisor app",
     "start": "node app",
     "build": "pm2 start app"
   },
+  "keywords": [],
   "author": "",
-  "license": "MIT",
+  "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "mysql": "^2.17.1",
     "pug": "^2.0.4"
   }
 }

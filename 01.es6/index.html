@@ -1,0 +1,60 @@
+<script>
+    var a = 10;
+    function sum() {
+        a = 20;
+    }
+    //let a = 20;
+    const b = 30;
+    for(var i = 0; i <10; i++) {
+    }   
+    
+    console.log(i);
+    for (let j = 0; j < 10; j ++) {
+        console.log(j);
+    }
+    let d;
+    d = 20;
+    //상수
+    const e = new Array();
+    // primitive type : Number, String, Boolean, undefined, null 
+    // reference type : Object, Array 
+    // reference type 은 const 로 선언 
+    e[0] = 10;
+    e[1] = 30;
+    //map();
+    //filter();
+    const arr = [1,2,3,4,5];
+    /*const arr2 = arr; 배열은 이렇게 대입하면 안됨!
+    arr[3] = 30;
+    console.log(arr2);*/Array
+    const arr2 = arr.map(function(item) {
+        return item * 2;
+    });
+    console.log(arr , arr2);
+    const arr3 = [
+        {name: "lee", age: 18},
+        {name: "lee2", age: 28},
+        {name: "lee3", age: 48},
+        {name: "lee4", age: 58},
+    ];
+    const arr4 = arr3.filter(function(item) {
+        if (item.age < 30) return item;
+    });
+    console.log(arr3, arr4);
+    //기존 배열
+    for(let i = 0; i < arr3.length; i++) {
+    }
+    //인덱스를 구함
+    for(let i in arr) {
+        console.log(i);
+    }
+    //값을 구함
+    for(let v of arr2) {
+        console.log(v);
+    }
+    
+    // 비동기기 때문에 진행 되는 동안 다른 작업을 진행하는 for
+    arr3.forEach(function(v, i) {
+        console.log(v, i);
+    });
+</script>
