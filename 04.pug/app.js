@@ -103,3 +103,7 @@ app.post("/board", async (req, res) => {
     connect.release();
     res.json(result);
 });
+
+//res.send
+//res.json
+//res.render
