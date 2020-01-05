@@ -2,15 +2,16 @@ const express = require('express'); // 아무 경로도 없으면 node 는 node_
 const app = express(); //익스프레스(커다란 함수 덩어리) 함수를 실행 한 결과
 const host = '127.0.0.1';
 const port = 3000;
-const bodyParser = require('body-parser'); //Middleware html 을 parsing 해줌 
+//const bodyParser = require('body-parser'); //Middleware html 을 parsing 해줌 
 
 // 지정한 public 폴더를 client가 접근 가능한 정적 폴더로 만든다.
 app.locals.pretty = true; // locals 는 전역변수
 app.set('view engine', 'pug');
 app.set('views', './views');
-app.use(bodyParser.json()); //json 을 javascript object 로 바꿔줌 JSON.parse()
-app.use(bodyParser.urlencoded({extended: false})); //post 방식으로 넘어온 데이터 중 multipart/formdata 를 제외하고 처리 (다른애가 처리함)
+app.use(express.json()); //json 을 javascript object 로 바꿔줌 JSON.parse()
+app.use(express.urlencoded({extended: false})); //post 방식으로 넘어온 데이터 중 multipart/formdata 를 제외하고 처리 (다른애가 처리함)
 app.use("/", express.static("./public"));
+app.locals.pretty = true; // 클라이언트에 보내는 소스를 들여쓰기 해 준다.
 
 app.listen(port, () => {
     console.log(`http://${host}:${port}`);
@@ -27,7 +28,7 @@ app.get("/hello", (req, res) => {
 
 
 app.get("/home", (req, res) => {
-    let name = req.query.name;
+    let name = req.query.name; // get 방식 주소줄을 통해 요청된 변수 접근
     res.send(`<h2>${name} 님 입니다<h3>`);
 });
 
@@ -46,8 +47,8 @@ app.get("/api/user", (req, res) => {
     res.json(users);
 });
 
-app.get("/blog/:category/:id", (req,res) => {
-    let category = req.params.category = req.params.category;
+app.get("/blog/:category/:id", (req, res) => {
+    let category = req.params.category; // sementic 주소줄을 통해 요청된 변수 접근
     let id = req.params.id;
     res.send(`category: ${category}, id : ${id}`);
 });
@@ -64,7 +65,7 @@ app.get("/index", (req, res) => {
 }); 
 
 app.post("/join", (req, res) => {
-    let userid = req.body.userid;
+    let userid = req.body.userid; //post 방식으로 요청된 변수 접근
     let userpw = req.body.userpw;
     res.send(`userid : ${userid} / userpw: ${userpw}`);
 });
