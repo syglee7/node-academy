@@ -56,14 +56,14 @@ const promise2 = new Promise(function(resolve, reject) {
     setTimeout(function() {
       resolve('foo');
     }, 300);
-  });
-  
-  promise2.then(function(value) {
-    console.log(value);
-    // expected output: "foo"
-  });
-  
-  console.log(promise2);
+});
+
+promise2.then(function(value) {
+console.log(value);
+// expected output: "foo"
+});
+
+console.log(promise2);
 
 // async await 변경 방식
 function getFoo() {
