@@ -104,6 +104,6 @@ app.post("/board", async (req, res) => {
     res.json(result);
 });
 
-//res.send
-//res.json
-//res.render
+//res.send html 다이렉트로
+//res.json api 구현 json
+//res.render pug로 보내는거
