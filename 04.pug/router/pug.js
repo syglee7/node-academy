@@ -1,42 +1,16 @@
 const express = require('express');
-const app = express();
-const port = 3000;
-const host = '127.0.0.1';
-//const { mysql, conn } = require('./modules/mysql-conn');
-const { pool, mysqlErr } = require('./modules/mysql-conn');
-const routerSample = require('./router/pug');
-// 동시에 여러 요청 처리 가능 createpool
+const router = express.Router();
+const { pool, mysqlErr } = require('../modules/mysql-conn');
 
 
-/* 한 번에 하나의 요청만 처리 가능
-    const conn = mysql.createConnection({ 
-    host: 'localhost',
-    user: 'root',
-    password: '000000',
-    port: '3307',
-    database: 'node',
+/*
+/pug/update/4 이런 요청 처리시
+------router.js-------------
+const pugRouter = require("./router/pug");
+router.use("/pug", pugRouter);
+ */
 
-}); */
-
-// 서버 구동
-app.listen(3000, () => {
-	console.log(`http://${host}:${port}`);
-});
-
-// express 세팅 및 미들웨어 세팅
-app.set('view engine', 'pug');
-app.set('views', './views');
-
-// 정적라우터 세팅
-app.use('/', express.static('./public'));
-// body-parser 세팅
-app.use(express.json());
-app.use(express.urlencoded({extended: false}));
-app.locals.pretty = true; // 클라이언트에 보내주는 소스를 들여쓰기 해준다.
-
-app.use("/router", routerSample);
-
-app.get(["/pug", "/pug/:page"], async (req, res) => { 
+router.get(["/", "/:page"], async (req, res) => { 
     let page = req.params.page ? req.params.page : "list";
     let vals = {};
     switch(page) {
@@ -45,6 +19,7 @@ app.get(["/pug", "/pug/:page"], async (req, res) => {
             let sql = "SELECT * FROM board ORDER BY id DESC";
             const connect = await pool.getConnection();
             const result = await connect.query(sql);
+            connect.release();
             vals.lists = result[0];
             //res 가 두개 있으면 에러남. 하나의 라우터에서는 res를 하나만 해야한다.
            /*  vals.lists = [
@@ -52,21 +27,21 @@ app.get(["/pug", "/pug/:page"], async (req, res) => {
                 {id:2, title: '두번째 글', writer: '이선영', wdate: '2020-01-04', rnum: 7},
                 {id:3, title: '세번째 글', writer: '현수호', wdate: '2020-01-05', rnum: 8},
             ]; */
-            res.render("list.pug", vals); 
+            res.render("list", vals); 
             break;
         case "write":
             vals.title = "게시글 작성 입니다.";
-            res.render("write.pug", vals);
+            res.render("write", vals);
             break;
         default:
-            res.redirect("/");
+            res.redirect("/pug");
             break;
     
     }
 });
 
 // mysql 접근
-/* app.get('/sqltest', (req, res) => {
+/* router.get('/sqltest', (req, res) => {
     let connect = conn.getConnection((err, connect) => {
         if (err) {
             res.send('DataBase 접속에 실패 하였습니다.');
@@ -83,23 +58,25 @@ app.get(["/pug", "/pug/:page"], async (req, res) => {
     });
 }); */
 
-app.get("/pug/view/:id", async (req, res) => {
+router.get("/view/:id", async (req, res) => {
 	let vals = {
 		title: "게시글 상세 보기",
 	}
 	let id = req.params.id;
 	let sql = "SELECT * FROM board WHERE id="+id;
 	const connect = await pool.getConnection();
-	const result = await connect.query(sql);
+    const result = await connect.query(sql);
+    connect.release();
 	vals.data = result[0][0];
-	res.render("view.pug", vals);
+	res.render("view", vals);
 });
 
-app.get("/pug/delete/:id", async (req, res) => {
+router.get("/delete/:id", async (req, res) => {
     let id = req.params.id;
     let sql = "DELETE FROM board WHERE id="+id;
     const connect = await pool.getConnection();
     const result = await connect.query(sql);
+    connect.release();
     if (result[0].affectedRows == 1) {
         res.redirect("/pug");
     } else {
@@ -107,7 +84,7 @@ app.get("/pug/delete/:id", async (req, res) => {
     }
 });
 
-app.get("/pug/update/:id", async (req, res) => {
+router.get("/update/:id", async (req, res) => {
     const vals = {
         title: "게시글 수정",
     }
@@ -115,12 +92,13 @@ app.get("/pug/update/:id", async (req, res) => {
     const sql = "SELECT * FROM board WHERE id="+id;
     const connect = await pool.getConnection();
     const result = await connect.query(sql);
+    connect.release();
     vals.data = result[0][0];
     res.render("update", vals);
 });
 
 
-app.post("/pug/update", async (req, res) => {
+router.post("/update", async (req, res) => {
     const sqlVals = [];
     sqlVals.push(req.body.title);
     sqlVals.push(req.body.content);
@@ -128,6 +106,7 @@ app.post("/pug/update", async (req, res) => {
     const sql = "UPDATE board SET title=?, content=? WHERE id=?";
     const connect = await pool.getConnection();
     const result = await connect.query(sql, sqlVals);
+    connect.release();
     
     if (result[0].affectedRows == 1) {
         res.redirect("/pug");
@@ -136,29 +115,13 @@ app.post("/pug/update", async (req, res) => {
     }
 });
 
-app.get("/sqltest", async (req, res) => {
-    let sql = "INSERT INTO board SET title=?, writer=?, wdate=?";
-    let sqlVals = ["제목!!!", "관리자2!!", "2020-01-05 15:55:45"];
-    const connect = await pool.getConnection(); //await 를 쓰기 위해선 포함하고 있는 함수를 async 로 만들어야함
-    // async await 를 쓰면 콜백 처럼 먼저 아래 프로세스를 실행하고 나중에 리턴받는게 아닌 return을 받고 나서 다음 내용을 수행한다.
-    // 비동기인 자바스크립트를 동기처럼 쓸 수 있음.
-    
-    const result = await connect.query(sql, sqlVals);
-    // 원래 try catch 로 에러처리를 해줘야 하지만 나중에 처리하기로 하고 뺌
-    connect.release();
-    res.json(result);
-   
-});
-
-app.post("/board", async (req, res) => {
+router.post("/create", async (req, res) => {
     let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=?";
     let val = [req.body.title, req.body.writer, new Date(), req.body.content];
     const connect = await pool.getConnection();
     const result = await connect.query(sql, val);
     connect.release();
-    res.json(result);
+    res.redirect('/pug');
 });
 
-//res.send html 다이렉트로
-//res.json api 구현 json
-//res.render pug로 보내는거
+ module.exports = router;
