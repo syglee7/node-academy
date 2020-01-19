@@ -1,13 +1,20 @@
 extends ./layout/board.pug
 block title
-    .jumbotron
-        h2= title
-            small 게시글 상세보기
+	.jumbotron.my-2
+		h2= title
+			small - 게시글 상세보기 입니다.
 block content
-    .border.boarder-primary.rounded-p-3
-        b= data.title
-    .border.boarder-primary.rounded-p-3.my-3= data.content
-    .p-3.text-center
-        button.btn-primary#btUpdate(data-id=`${data.id}`) 수정    
-        button.btn-danger#btDelete(data-id=`${data.id}`) 삭제    
-        button.btn-success#btList 리스트    
+	.border.border-primary.rounded.p-3
+		b= data.title
+	.border.border-primary.rounded.p-3.my-3= data.content
+	if data.fileChk == "img"
+		.border.border-primary.rounded.p-3.my-3
+			img.mw-100(src=`${data.filepath}`)
+	else if data.fileChk == "file"
+		.border.border-primary.rounded.p-3.my-3
+			a(href=`/pug/download/${data.id}`)= data.orifile
+
+	.p-3.text-center
+		button.btn.btn-primary#btUpdate(data-id=`${data.id}`) 수정
+		button.btn.btn-danger#btDelete(data-id=`${data.id}`) 삭제
+		button.btn.btn-success#btList 리스트

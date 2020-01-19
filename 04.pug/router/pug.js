@@ -63,9 +63,11 @@ router.get("/view/:id", async (req, res) => {
 		title: "게시글 상세 보기",
 	}
 	let id = req.params.id;
-	let sql = "SELECT * FROM board WHERE id="+id;
-	const connect = await pool.getConnection();
-    const result = await connect.query(sql);
+    const connect = await pool.getConnection();
+    let sql = "UPDATE board SET rnum = rnum + 1 WHERE id="+id;
+    let result = await connect.query(sql);
+    sql = "SELECT * FROM board WHERE id="+id;
+    result = await connect.query(sql);
     connect.release();
 	vals.data = result[0][0];
 	res.render("view", vals);
@@ -116,8 +118,8 @@ router.post("/update", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-    let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=?";
-    let val = [req.body.title, req.body.writer, new Date(), req.body.content];
+    let sql = "INSERT INTO board SET title=?, writer=?, wdate=?, content=?, orifile=?, realfile=?";
+	let val = [req.body.title, req.body.writer, new Date(), req.body.content, req.file.originalname, req.file.filename];
     const connect = await pool.getConnection();
     const result = await connect.query(sql, val);
     connect.release();

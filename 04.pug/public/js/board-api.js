@@ -20,7 +20,7 @@ $("#btSave").click(function(){
 	var url = "/api/post";
 	if(id != "") {
 		type = "PUT";
-		url = "/api/put";
+		url = "/api/put/";
 	}
 	$.ajax({
 		url: url,
