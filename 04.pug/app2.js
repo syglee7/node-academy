@@ -5,6 +5,8 @@ const multer = require(path.join(__dirname, './modules/multer-conn'));
 const app = express();
 const port = 3000;
 const host = '127.0.0.1';
+const User = require(path.join(__dirname, "./models/User"));
+
 //const { mysql, conn } = require('./modules/mysql-conn');
 
 // 동시에 여러 요청 처리 가능 createpool
@@ -37,7 +39,7 @@ app.use(express.urlencoded({extended: false}));
 app.locals.pretty = true; // 클라이언트에 보내주는 소스를 들여쓰기 해준다.
 
 //form 에서 PUT, DELETE 를 보낼 떄 사용 됨. (ajax 에서는 불필요하다.);
-/* app.use(methodOverride, (req, res) => {
+app.use(methodOverride, (req, res) => {
     if (req.body && typeof req.body === 'object' && '_method' in req.body) {
       // look in urlencoded POST bodies and delete it
       var method = req.body._method
@@ -45,11 +47,15 @@ app.locals.pretty = true; // 클라이언트에 보내주는 소스를 들여쓰
       return method
     }
 });
- */
+ 
 const pugRouter = require(path.join(__dirname, "./router/pug"));
 const apiRouter = require(path.join(__dirname, "./router/api"));
+const userRouter = require(path.join(__dirname, "./router/user"));
 app.use("/pug", pugRouter);
 app.use('/api', apiRouter);
+app.use("/user", userRouter);
+
+
 
 app.get("/sqltest", async (req, res) => {
     let sql = "INSERT INTO board SET title=?, writer=?, wdate=?";
